@@ -127,7 +127,6 @@ void SysTick_Handler(void)
   */
 void EXTI9_5_IRQHandler(void)
 {
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
 }
 
 /**
@@ -137,7 +136,7 @@ void EXTI9_5_IRQHandler(void)
   */
 void EXTI15_10_IRQHandler(void) 
 {
-  HAL_GPIO_EXTI_IRQHandler(TAMPER_BUTTON_PIN);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON_PIN);
 }
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
