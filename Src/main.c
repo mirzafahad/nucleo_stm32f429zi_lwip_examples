@@ -130,8 +130,8 @@ static void BSP_Config(void)
   /* Set Systick Interrupt to the highest priority */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0x0, 0x0);
 
-  /* Configure Key Button */
-  BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
+  /* Configure User Button */
+  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 }
 
 /**
