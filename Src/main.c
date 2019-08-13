@@ -54,9 +54,7 @@
 #include "ethernetif.h"
 #include "app_ethernet.h"
 #include "tcp_echoclient.h"
-#ifdef USE_LCD
-#include "lcd_log.h"
-#endif
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -134,30 +132,6 @@ static void BSP_Config(void)
 
   /* Configure Key Button */
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
-  
-
-#ifdef USE_LCD
-
-  /* Initialize the LCD */
-  BSP_LCD_Init();
-  
-  /* Initialize the LCD Layers */
-  BSP_LCD_LayerDefaultInit(1, LCD_FB_START_ADDRESS);
-  
-  /* Set LCD Foreground Layer  */
-  BSP_LCD_SelectLayer(1);
-  
-  BSP_LCD_SetFont(&LCD_DEFAULT_FONT);
-  
-  /* Initialize LCD Log module */
-  LCD_LOG_Init();
-  
-  /* Show Header and Footer texts */
-  LCD_LOG_SetHeader((uint8_t *)"TCP Echo Client Application");
-  LCD_LOG_SetFooter((uint8_t *)"STM324x9I-EVAL board");
-  
-  LCD_UsrLog ("  State: Ethernet Initialization ...\n");
-#endif
 }
 
 /**
