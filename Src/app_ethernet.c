@@ -69,35 +69,26 @@ __IO uint8_t DHCP_state = DHCP_OFF;
   */
 void User_notification(struct netif *netif) 
 {
-  if (netif_is_up(netif))
- {
-#ifdef USE_DHCP
-    /* Update DHCP state machine */
-    DHCP_state = DHCP_START;
-#else
-#ifdef USE_LCD
-    uint8_t iptxt[20];
-    sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    LCD_UsrLog ("Static IP address: %s\n", iptxt);
-#else    
-    /* Turn On LED 1 to indicate ETH and LwIP init success*/
-    BSP_LED_On(LED1);
-#endif /* USE_LCD */
-#endif /* USE_DHCP */
- }
- else
-  {  
-#ifdef USE_DHCP
-    /* Update DHCP state machine */
-    DHCP_state = DHCP_LINK_DOWN;
-#endif  /* USE_DHCP */
-#ifdef USE_LCD
-   LCD_UsrLog ("The network cable is not connected \n");
-#else    
-    /* Turn On LED 2 to indicate ETH and LwIP init error */
-    BSP_LED_On(LED2);
-#endif /* USE_LCD */
-  } 
+    if (netif_is_up(netif))
+    {
+     #ifdef USE_DHCP
+        /* Update DHCP state machine */
+        DHCP_state = DHCP_START;
+     #else
+        /* Turn On LED 1 to indicate ETH and LwIP init success*/
+        BSP_LED_On(LED1);
+     #endif /* USE_DHCP */
+    }
+    else
+    {
+     #ifdef USE_DHCP
+        /* Update DHCP state machine */
+        DHCP_state = DHCP_LINK_DOWN;
+     #endif  /* USE_DHCP */
+
+        /* Turn On LED 2 to indicate ETH and LwIP init error */
+        BSP_LED_On(LED2);
+    }
 }
 
 /**
@@ -115,12 +106,9 @@ void ethernetif_notify_conn_changed(struct netif *netif)
   
   if(netif_is_link_up(netif))
   {
-#ifdef USE_LCD
-    LCD_UsrLog ("The network cable is now connected \n");
-#else
     BSP_LED_Off(LED2);
     BSP_LED_On(LED1);
-#endif /* USE_LCD */
+
     
 #ifdef USE_DHCP
     /* Update DHCP state machine */
@@ -131,12 +119,6 @@ void ethernetif_notify_conn_changed(struct netif *netif)
     IP_ADDR4(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);  
     
     netif_set_addr(netif, &ipaddr , &netmask, &gw);  
-    
-#ifdef USE_LCD        
-    uint8_t iptxt[20];
-    sprintf((char *)iptxt, "%s", ip4addr_ntoa((const ip4_addr_t *)&netif->ip_addr));
-    LCD_UsrLog ("Static IP address: %s\n", iptxt);
-#endif
 #endif /* USE_DHCP */   
     
     /* When the netif is fully configured this function must be called.*/
@@ -152,12 +134,10 @@ void ethernetif_notify_conn_changed(struct netif *netif)
     /*  When the netif link is down this function must be called.*/
     netif_set_down(netif);
     
-#ifdef USE_LCD
-    LCD_UsrLog ("The network cable is not connected \n");
-#else
+
     BSP_LED_Off(LED1);
     BSP_LED_On(LED2);
-#endif /* USE_LCD */    
+
   }
 }
 
