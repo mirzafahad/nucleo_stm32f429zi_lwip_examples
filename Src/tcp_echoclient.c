@@ -132,7 +132,7 @@ static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err
       es->state = ES_CONNECTED;
       es->pcb = tpcb;
       
-      sprintf((char*)data, "sending tcp client message %d", (int)message_count);
+      sprintf((char*)data, "sending tcp client message %d", (int)message_count++);
         
       /* allocate pbuf */
       es->p_tx = pbuf_alloc(PBUF_TRANSPORT, strlen((char*)data) , PBUF_POOL);
