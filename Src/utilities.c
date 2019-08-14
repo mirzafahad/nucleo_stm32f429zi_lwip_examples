@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <stdio.h>
 #include <stdint.h>
 #include "utilities.h"
-#include "tiny_sscanf.h"
+
 
 /*!
  * Redefinition of rand() and srand() standard C functions.
@@ -114,7 +114,7 @@ uint8_t stringHexToByteArray(const char *hexString, uint8_t *byteArray, uint8_t 
         hex[0] = *hexString;
         hex[1] = *(hexString + 1);
 
-        if((tiny_sscanf(hex, "%hhx",&byteArray[count]) != 1))
+        if((sscanf(hex, "%hhx",&byteArray[count]) != 1))
         {
             // hex doesn't have valid numbers
             break;
