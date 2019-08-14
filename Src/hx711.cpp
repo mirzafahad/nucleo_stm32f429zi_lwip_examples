@@ -12,15 +12,30 @@
 
 
 
-HX711::HX711(sHX711Param_t* hx711Param)
+HX711::HX711(sHX711Param_t &hx711Param)
 {
-	SCK_PIN  = hx711Param->sckPin;
-	DT_PIN   = hx711Param->dtPin;
-	SCK_PORT = hx711Param->sckPort;
-	DT_PORT  = hx711Param->dtPort;
-	GAIN     = hx711Param->gain;
+	SCK_PIN  = hx711Param.sckPin;
+	DT_PIN   = hx711Param.dtPin;
+	SCK_PORT = hx711Param.sckPort;
+	DT_PORT  = hx711Param.dtPort;
+	GAIN     = hx711Param.gain;
+}
 
+HX711::HX711(GPIO_TypeDef* dtPort, GPIO_TypeDef* sckPort, uint16_t dtPin, uint16_t sckPin, uint8_t gain)
+{
+	SCK_PIN  = sckPin;
+	DT_PIN   = dtPin;
+	SCK_PORT = sckPort;
+	DT_PORT  = dtPort;
+	GAIN     = gain;
+}
 
+HX711::~HX711()
+{
+}
+
+void HX711::begin()
+{
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -35,11 +50,6 @@ HX711::HX711(sHX711Param_t* hx711Param)
 
 	set_gain(GAIN);
 }
-
-HX711::~HX711()
-{
-}
-
 
 void HX711::set_gain(uint8_t gain)
 {

@@ -30,13 +30,21 @@ class HX711
 		uint8_t GAIN;
 
 	public:
-		// Initialize library with data output pin, clock input pin and gain factor.
-		// Channel selection is made by passing the appropriate gain:
-		// - With a gain factor of 64 or 128, channel A is selected
-		// - With a gain factor of 32, channel B is selected
-		// The library default is "128" (Channel A).
-		HX711(sHX711Param_t* hx711Param);
+		/* Initialize library with data output pin, clock input pin and gain factor.
+		 *
+		 * Channel selection is made by passing the appropriate gain:
+		 * - With a gain factor of 64 or 128, channel A is selected
+		 * - With a gain factor of 32, channel B is selected
+		 * - The library default is "128" (Channel A).
+		 */
+		HX711(sHX711Param_t &hx711Param);
+		HX711(GPIO_TypeDef* dtPort, GPIO_TypeDef* sckPort, uint16_t dtPin, uint16_t sckPin, uint8_t gain = 128);
 		virtual ~HX711();
+
+		/*
+		 * ToDo
+		 */
+		void begin(void);
 
 		// Check if HX711 is ready
 		// from the datasheet: When output data is not ready for retrieval, digital output pin DT is high. Serial clock
