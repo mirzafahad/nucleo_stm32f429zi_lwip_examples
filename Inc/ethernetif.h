@@ -46,6 +46,9 @@
 #ifndef __ETHERNETIF_H__
 #define __ETHERNETIF_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "lwip/err.h"
 #include "lwip/netif.h"
@@ -56,4 +59,9 @@ void ethernetif_input(struct netif *netif);
 void ethernetif_set_link(struct netif *netif);
 void ethernetif_update_config(struct netif *netif);
 void ethernetif_notify_conn_changed(struct netif *netif);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
