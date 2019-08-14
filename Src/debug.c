@@ -30,7 +30,7 @@ void DBG_Init(void)
 		- Word Length = 8 Bits (7 data bit + 1 parity bit) :
 					    BE CAREFUL : Program 7 data bits + 1 parity bit in PC HyperTerminal //  TODO : I am not using the parity bit for now, but may I should
 		- Stop Bit    = One Stop bit
-		- Parity      = ODD parity  // TODO
+		- Parity      = None
 		- BaudRate    = 9600 baud
 		- Hardware flow control disabled (RTS and CTS signals) */
 	DebugUart.Instance          = DBG_USARTx;
