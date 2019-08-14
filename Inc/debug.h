@@ -7,16 +7,14 @@
 extern "C" {
 #endif
 
+#include "stdio.h"
+
 /**
- * @brief  Sends string on com port
+ * @brief  Initialize debug port
  * @param  String
  * @retval None
  */
-void DBG_Print(const char *format, ...);
 void DBG_Init(void);
-
-
-#define PRINTF(...)     DBG_Print(__VA_ARGS__)
 
 
 #ifdef __cplusplus

@@ -88,6 +88,13 @@ int main(void)
   /* Configure the system clock to 180 MHz */
   SystemClock_Config();
   
+  DBG_Init();
+
+  printf("#Debug Port#\r\n");
+  printf("------------\r\n");
+  printf("Initializing Ethernet Interface...\r\n");
+
+
   /* Configure the BSP */
   BSP_Config();
     
@@ -100,9 +107,8 @@ int main(void)
   /* Notify user about the network interface config */
   User_notification(&gnetif);
 
-  DBG_Init();
+  printf("Done!\r\n");
 
-  PRINTF("\r\n:Debug Port:\r\n");
 
   /* Infinite loop */
   while (1)

@@ -6,18 +6,21 @@
  */
 
 
-#include <debug.h>
-#include <stdarg.h>
-#include "tiny_vsnprintf.h"
+#include "debug.h"
 #include "hw_conf.h"
-#include "utilities.h"
-/* Force include of HAL UART in order to inherit HAL_UART_StateTypeDef definition */
-#include "stm32f4xx_hal_uart.h"
+#include "stm32f4xx_hal.h"
 
 
+/* Private function prototypes -----------------------------------------------*/
+#ifdef __GNUC__
+/* With GCC, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
 
 static UART_HandleTypeDef DebugUart;
-static char BuffTx[256];
 
 
 
@@ -46,42 +49,18 @@ void DBG_Init(void)
 	HAL_UART_Init(&DebugUart);
 }
 
-
-
-void DBG_Print(const char *format, ...)
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
 {
-	va_list args;
-	static __IO uint16_t len = 0;
-	uint16_t current_len;
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART3 and Loop until the end of transmission */
+  HAL_UART_Transmit(&DebugUart, (uint8_t *)&ch, 1, 0xFFFF);
 
-	va_start(args, format);
-
-	BACKUP_PRIMASK();
-	DISABLE_IRQ();
-
-	if(len != 0)
-	{
-		if(len != sizeof(BuffTx))
-		{
-			current_len = len; // use current_len instead of volatile len in computation below
-			len = current_len + tiny_vsnprintf_like(BuffTx + current_len, sizeof(BuffTx) - current_len, format, args);
-		}
-		RESTORE_PRIMASK();
-		va_end(args);
-		return;
-	}
-	else
-	{
-		len = tiny_vsnprintf_like(BuffTx, sizeof(BuffTx), format, args);
-	}
-
-	current_len = len;
-
-	RESTORE_PRIMASK();
-
-	HAL_UART_Transmit(&DebugUart, (uint8_t *)BuffTx, current_len, 5000);
-	len = 0; // ToDo
-	va_end(args);
+  return ch;
 }
 
 
@@ -92,7 +71,7 @@ void DBG_Print(const char *format, ...)
   */
 void DBG_Error_Handler( void )
 {
-    PRINTF("Error_Handler\n\r");
+    printf("Error_Handler\n\r");
     while(1);
 }
 
