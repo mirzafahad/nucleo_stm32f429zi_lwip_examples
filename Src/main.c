@@ -54,6 +54,7 @@
 #include "ethernetif.h"
 #include "app_ethernet.h"
 #include "tcp_echoclient.h"
+#include "debug.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,6 +99,10 @@ int main(void)
   
   /* Notify user about the network interface config */
   User_notification(&gnetif);
+
+  DBG_Init();
+
+  PRINTF("\r\n:Debug Port:\r\n");
 
   /* Infinite loop */
   while (1)
@@ -157,10 +162,10 @@ static void Netif_Config(void)
 
   /* Add the network interface */
   netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
-  
+
   /* Registers the default network interface. */
   netif_set_default(&gnetif);
-  
+
   if (netif_is_link_up(&gnetif))
   {
     /* When the netif is fully configured this function must be called */
@@ -216,8 +221,8 @@ static void SystemClock_Config(void)
   /* Enable Power Control clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
+  /* The voltage scaling allows optimizing the power consumption when the device is
+     clocked below the maximum system frequency, to update the voltage scaling value
      regarding system frequency refer to product datasheet.  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
@@ -231,17 +236,17 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  
+
   /* Activate the Over-Drive mode */
   HAL_PWREx_EnableOverDrive();
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
      clocks dividers */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
 }
 
