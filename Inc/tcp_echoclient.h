@@ -56,6 +56,8 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void tcp_echoclient_connect(void);
+bool tcp_GetConnectionStatus(void);
+int8_t tcp_SendData(uint8_t *buf, size_t bufSize);
 
 #ifdef __cplusplus
 }

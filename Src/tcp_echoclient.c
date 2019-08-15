@@ -50,16 +50,23 @@
 #include "lwip/memp.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #if LWIP_TCP
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-u8_t  recev_buf[50];
-__IO uint32_t message_count=0;
 
-u8_t   data[100];
+#define TX_BUF_SIZE    (100U)
+#define RX_BUF_SIZE    (50U)
+
+/* Private variables ---------------------------------------------------------*/
+uint8_t  recev_buf[RX_BUF_SIZE];
+__IO uint32_t message_count = 0;
+__IO bool TCP_Connected_Flag = false;
+
+
+uint8_t   data[TX_BUF_SIZE];
 
 struct tcp_pcb *echoclient_pcb;
 
@@ -108,7 +115,7 @@ void tcp_echoclient_connect(void)
     IP4_ADDR( &DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
     
     /* connect to destination address/port */
-    tcp_connect(echoclient_pcb,&DestIPaddr,DEST_PORT,tcp_echoclient_connected);
+    tcp_connect(echoclient_pcb, &DestIPaddr, DEST_PORT, tcp_echoclient_connected);
   }
 }
 
@@ -118,63 +125,149 @@ void tcp_echoclient_connect(void)
   * @param err: when connection correctly established err should be ERR_OK 
   * @retval err_t: returned error 
   */
+//static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
+//{
+//  struct echoclient *es = NULL;
+//
+//  if (err == ERR_OK)
+//  {
+//    /* allocate structure es to maintain tcp connection informations */
+//    es = (struct echoclient *)mem_malloc(sizeof(struct echoclient));
+//
+//    if (es != NULL)
+//    {
+//      es->state = ES_CONNECTED;
+//      es->pcb = tpcb;
+//
+//      sprintf((char*)data, "sending tcp client message %d", (int)message_count++);
+//
+//      /* allocate pbuf */
+//      es->p_tx = pbuf_alloc(PBUF_TRANSPORT, strlen((char*)data) , PBUF_POOL);
+//
+//      if (es->p_tx)
+//      {
+//        /* copy data to pbuf */
+//        pbuf_take(es->p_tx, (char*)data, strlen((char*)data));
+//
+//        /* pass newly allocated es structure as argument to tpcb */
+//        tcp_arg(tpcb, es);
+//
+//        /* initialize LwIP tcp_recv callback function */
+//        tcp_recv(tpcb, tcp_echoclient_recv);
+//
+//        /* initialize LwIP tcp_sent callback function */
+//        tcp_sent(tpcb, tcp_echoclient_sent);
+//
+//        /* initialize LwIP tcp_poll callback function */
+//        tcp_poll(tpcb, tcp_echoclient_poll, 1);
+//
+//        /* send data */
+//        tcp_echoclient_send(tpcb,es);
+//
+//        return ERR_OK;
+//      }
+//    }
+//    else
+//    {
+//      /* close connection */
+//      tcp_echoclient_connection_close(tpcb, es);
+//
+//      /* return memory allocation error */
+//      return ERR_MEM;
+//    }
+//  }
+//  else
+//  {
+//    /* close connection */
+//    tcp_echoclient_connection_close(tpcb, es);
+//  }
+//  return err;
+//}
+
+/**
+  * @brief Function called when TCP connection established
+  * @param tpcb: pointer on the connection contol block
+  * @param err: when connection correctly established err should be ERR_OK
+  * @retval err_t: returned error
+  */
 static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
-  struct echoclient *es = NULL;
-  
   if (err == ERR_OK)   
   {
-    /* allocate structure es to maintain tcp connection informations */
+      TCP_Connected_Flag = true;
+  }
+  else
+  {
+    /* close connection */
+    tcp_echoclient_connection_close(tpcb, NULL);
+  }
+  return err;
+}
+
+bool tcp_GetConnectionStatus(void)
+{
+	return TCP_Connected_Flag;
+}
+
+int8_t tcp_SendData(uint8_t *buf, size_t bufSize)
+{
+	struct echoclient *es = NULL;
+	size_t bufIndex = 0;
+
+	if(buf == NULL || bufSize >= TX_BUF_SIZE || echoclient_pcb == NULL)
+	{
+		return ERR_VAL;
+	}
+
+	/* allocate structure es to maintain tcp connection informations */
     es = (struct echoclient *)mem_malloc(sizeof(struct echoclient));
-  
-    if (es != NULL)
+
+    if (es != NULL || TCP_Connected_Flag == false)
     {
       es->state = ES_CONNECTED;
-      es->pcb = tpcb;
-      
-      sprintf((char*)data, "sending tcp client message %d", (int)message_count++);
-        
+      es->pcb = echoclient_pcb;
+
+      for(size_t i = 0; i < bufSize; i++)
+      {
+    	  data[bufIndex++] = buf[i];
+      }
+
       /* allocate pbuf */
-      es->p_tx = pbuf_alloc(PBUF_TRANSPORT, strlen((char*)data) , PBUF_POOL);
-         
+      es->p_tx = pbuf_alloc(PBUF_TRANSPORT, bufIndex , PBUF_POOL);
+
       if (es->p_tx)
-      {       
+      {
         /* copy data to pbuf */
-        pbuf_take(es->p_tx, (char*)data, strlen((char*)data));
-        
+        pbuf_take(es->p_tx, data, bufIndex);
+
         /* pass newly allocated es structure as argument to tpcb */
-        tcp_arg(tpcb, es);
-  
-        /* initialize LwIP tcp_recv callback function */ 
-        tcp_recv(tpcb, tcp_echoclient_recv);
-  
+        tcp_arg(echoclient_pcb, es);
+
+        /* initialize LwIP tcp_recv callback function */
+        tcp_recv(echoclient_pcb, tcp_echoclient_recv);
+
         /* initialize LwIP tcp_sent callback function */
-        tcp_sent(tpcb, tcp_echoclient_sent);
-  
+        tcp_sent(echoclient_pcb, tcp_echoclient_sent);
+
         /* initialize LwIP tcp_poll callback function */
-        tcp_poll(tpcb, tcp_echoclient_poll, 1);
-    
+        tcp_poll(echoclient_pcb, tcp_echoclient_poll, 1);
+
         /* send data */
-        tcp_echoclient_send(tpcb,es);
-        
+        tcp_echoclient_send(echoclient_pcb,es);
+
         return ERR_OK;
       }
     }
     else
     {
       /* close connection */
-      tcp_echoclient_connection_close(tpcb, es);
-      
+      tcp_echoclient_connection_close(echoclient_pcb, es);
+
       /* return memory allocation error */
-      return ERR_MEM;  
+      return ERR_MEM;
     }
-  }
-  else
-  {
-    /* close connection */
-    tcp_echoclient_connection_close(tpcb, es);
-  }
-  return err;
+
+    return ERR_OK;
 }
     
 /**
@@ -379,6 +472,7 @@ static void tcp_echoclient_connection_close(struct tcp_pcb *tpcb, struct echocli
 
   /* close tcp connection */
   tcp_close(tpcb);  
+  TCP_Connected_Flag = false;
 }
 
 #endif /* LWIP_TCP */
