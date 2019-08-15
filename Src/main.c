@@ -55,6 +55,7 @@
 #include "app_ethernet.h"
 #include "tcp_echoclient.h"
 #include "debug.h"
+#include "app_shelf.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,11 +63,23 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif;
+uint8_t DataBuffer[48];
+
+typedef enum eAppState
+{
+	CONNECT,
+	CONNECTED,
+	SEND_DATA,
+	CLOSE
+}eAppState_t;
+
+eAppState_t AppState = CONNECT;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void BSP_Config(void);
 static void Netif_Config(void);
+void app_fsm(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -107,18 +120,22 @@ int main(void)
   /* Notify user about the network interface config */
   User_notification(&gnetif);
 
+  Shelf_Init();
   printf("Done!\r\n");
 
 
   /* Infinite loop */
   while (1)
-  {  
-    /* Read a received packet from the Ethernet buffers and send it 
-       to the lwIP for handling */
-    ethernetif_input(&gnetif);
+  {
+	  /* Read a received packet from the Ethernet buffers and send it
+         to the lwIP for handling */
 
-    /* Handle timeouts */
-    sys_check_timeouts();
+
+	  app_fsm();
+	  ethernetif_input(&gnetif);
+	  /* Handle timeouts */
+	  sys_check_timeouts();
+
 
 #ifdef USE_DHCP
     /* handle periodic timers for LwIP */
@@ -254,6 +271,49 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+}
+
+void app_fsm(void)
+{
+	switch(AppState)
+	{
+		case CONNECT:
+		{
+			Shelf_GetAllData(DataBuffer, sizeof(DataBuffer));
+			if(tcp_GetConnectionStatus() == false)
+			{
+				tcp_echoclient_connect();
+				AppState = CONNECTED;
+			}
+			else
+			{
+				AppState = SEND_DATA;
+			}
+
+			break;
+		}
+		case CONNECTED:
+		{
+			if(tcp_GetConnectionStatus() == true)
+			{
+				AppState = SEND_DATA;
+			}
+			break;
+		}
+		case SEND_DATA:
+		{
+			BSP_LED_Toggle(LED1);
+			tcp_SendData(DataBuffer, sizeof(DataBuffer));
+			AppState = CONNECT;
+			break;
+		}
+		default:
+		{
+			AppState = CONNECT;
+			break;
+		}
+
+	}
 }
 
 #ifdef  USE_FULL_ASSERT
