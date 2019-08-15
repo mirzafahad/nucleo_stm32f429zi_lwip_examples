@@ -92,7 +92,7 @@ int main(void)
 
   printf("#Debug Port#\r\n");
   printf("------------\r\n");
-  printf("Initializing Ethernet Interface...\r\n");
+  printf("Initializing Ethernet and Sensor Interface...\r\n");
 
 
   /* Configure the BSP */
