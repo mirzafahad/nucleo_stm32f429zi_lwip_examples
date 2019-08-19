@@ -35,22 +35,50 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 	GPIO_InitStruct.Pull      = GPIO_PULLUP;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
 
+	// TODO HW_Gpio_init isn't working. Don't know why.
+	// For now using HAL_GPIO_Init. Will come back to this later.
+
     if(huart->Instance == USART1)
 	{
+    	__HAL_RCC_GPIOA_CLK_ENABLE();
 		// Peripheral clock enable
 		__HAL_RCC_USART1_CLK_ENABLE();
+
+		/* UART TX GPIO pin configuration  */
+		GPIO_InitStruct.Pin       = GPIO_PIN_9;
 		GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-		HW_GPIO_Init(GPIOA, GPIO_PIN_9|GPIO_PIN_10, &GPIO_InitStruct);
+
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		/* UART RX GPIO pin configuration  */
+		GPIO_InitStruct.Pin = GPIO_PIN_10;
+		GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	}
 	else if(huart->Instance == USART3)
 	{
-		// Peripheral clock enable
-		__HAL_RCC_USART3_CLK_ENABLE();
-		GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
-		HW_GPIO_Init(GPIOD, GPIO_PIN_8|GPIO_PIN_9, &GPIO_InitStruct);
+		DBG_USARTx_TX_GPIO_CLK_ENABLE();
+		DBG_USARTx_RX_GPIO_CLK_ENABLE();
+
+		/* Enable USARTx clock */
+		DBG_USARTx_CLK_ENABLE();
+
+		/* UART TX GPIO pin configuration  */
+		GPIO_InitStruct.Pin       = DBG_USARTx_TX_PIN;
+		GPIO_InitStruct.Alternate = DBG_USARTx_TX_AF;
+
+		HAL_GPIO_Init(DBG_USARTx_TX_GPIO_PORT, &GPIO_InitStruct);
+
+		/* UART RX GPIO pin configuration  */
+		GPIO_InitStruct.Pin = DBG_USARTx_RX_PIN;
+		GPIO_InitStruct.Alternate = DBG_USARTx_RX_AF;
+
+		HAL_GPIO_Init(DBG_USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
 	}
 
 }
+
 
 /**
   * @brief UART MSP De-Initialization
