@@ -56,6 +56,7 @@
 #include "tcp_echoclient.h"
 #include "debug.h"
 #include "app_shelf.h"
+#include "hw_uart1.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,6 +108,11 @@ int main(void)
   printf("------------\r\n");
   printf("Initializing Ethernet and Sensor Interface...\r\n");
 
+  char temp[6] = "Hello";
+
+  HW_Uart1_Init();
+  HW_Uart1_Send((uint8_t *)temp, 5);
+
 
   /* Configure the BSP */
   BSP_Config();
@@ -127,14 +133,12 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+	  app_fsm();
 	  /* Read a received packet from the Ethernet buffers and send it
          to the lwIP for handling */
-
-
-	  app_fsm();
-	  ethernetif_input(&gnetif);
+	  //ethernetif_input(&gnetif);
 	  /* Handle timeouts */
-	  sys_check_timeouts();
+	  //sys_check_timeouts();
 
 
 #ifdef USE_DHCP
@@ -152,14 +156,14 @@ int main(void)
 static void BSP_Config(void)
 {
   /* Configure LED1, LED2 */
-  BSP_LED_Init(LED1);
-  BSP_LED_Init(LED2);
+  //BSP_LED_Init(LED1);
+  //BSP_LED_Init(LED2);
   
   /* Set Systick Interrupt to the highest priority */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0x0, 0x0);
 
   /* Configure User Button */
-  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+  //BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 }
 
 /**

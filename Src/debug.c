@@ -59,7 +59,7 @@ PUTCHAR_PROTOTYPE
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART3 and Loop until the end of transmission */
-  HAL_UART_Transmit(&DebugUart, (uint8_t *)&ch, 1, 0xFFFF);
+  HAL_UART_Transmit(&DebugUart, (uint8_t *)&ch, 1, 5000);
 
   return ch;
 }
@@ -74,63 +74,4 @@ void DBG_Error_Handler( void )
 {
     printf("Error_Handler\n\r");
     while(1);
-}
-
-/**
-  * @brief UART MSP Initialization
-  *        This function configures the hardware resources used in this example:
-  *           - Peripheral's clock enable
-  *           - Peripheral's GPIO Configuration
-  * @param huart: UART handle pointer
-  * @retval None
-  */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
-{
-	GPIO_InitTypeDef  GPIO_InitStruct;
-
-	/*##-1- Enable peripherals and GPIO Clocks #################################*/
-	/* Enable GPIO TX/RX clock */
-	DBG_USARTx_TX_GPIO_CLK_ENABLE();
-	DBG_USARTx_RX_GPIO_CLK_ENABLE();
-
-
-	/* Enable USARTx clock */
-	DBG_USARTx_CLK_ENABLE();
-
-	/*##-2- Configure peripheral GPIO ##########################################*/
-	/* UART TX GPIO pin configuration  */
-	GPIO_InitStruct.Pin       = DBG_USARTx_TX_PIN;
-	GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull      = GPIO_PULLUP;
-	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Alternate = DBG_USARTx_TX_AF;
-
-	HAL_GPIO_Init(DBG_USARTx_TX_GPIO_PORT, &GPIO_InitStruct);
-
-	/* UART RX GPIO pin configuration  */
-	GPIO_InitStruct.Pin = DBG_USARTx_RX_PIN;
-	GPIO_InitStruct.Alternate = DBG_USARTx_RX_AF;
-
-	HAL_GPIO_Init(DBG_USARTx_RX_GPIO_PORT, &GPIO_InitStruct);
-}
-
-/**
-  * @brief UART MSP De-Initialization
-  *        This function frees the hardware resources used in this example:
-  *          - Disable the Peripheral's clock
-  *          - Revert GPIO and NVIC configuration to their default state
-  * @param huart: UART handle pointer
-  * @retval None
-  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
-{
-    /*##-1- Reset peripherals ##################################################*/
-	DBG_USARTx_FORCE_RESET();
-	DBG_USARTx_RELEASE_RESET();
-
-	/*##-2- Disable peripherals and GPIO Clocks #################################*/
-	/* Configure UART Tx as alternate function  */
-	HAL_GPIO_DeInit(DBG_USARTx_TX_GPIO_PORT, DBG_USARTx_TX_PIN);
-	/* Configure UART Rx as alternate function  */
-	HAL_GPIO_DeInit(DBG_USARTx_RX_GPIO_PORT, DBG_USARTx_RX_PIN);
 }
