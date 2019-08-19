@@ -15,7 +15,7 @@ extern "C" {
 
 /* Definition for Debug UART */
 #define DBG_USARTx                           USART3
-#define DBG_USARTx_CLK_ENABLE()              __HAL_RCC_USART3_CLK_ENABLE();
+#define DBG_USARTx_CLK_ENABLE()              __HAL_RCC_USART3_CLK_ENABLE()
 #define DBG_USARTx_RX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOD_CLK_ENABLE()
 #define DBG_USARTx_TX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOD_CLK_ENABLE()
 
@@ -28,6 +28,23 @@ extern "C" {
 #define DBG_USARTx_RX_PIN                    GPIO_PIN_9
 #define DBG_USARTx_RX_GPIO_PORT              GPIOD
 #define DBG_USARTx_RX_AF                     GPIO_AF7_USART3
+
+
+/* Definition for Sensor UART */
+#define SENSOR_USARTx                        USART1
+#define SENSOR_USARTx_CLK_ENABLE()           __HAL_RCC_USART1_CLK_ENABLE()
+#define SENSOR_USARTx_RX_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
+#define SENSOR_USARTx_TX_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
+
+#define SENSOR_USARTx_FORCE_RESET()          __HAL_RCC_USART1_FORCE_RESET()
+#define SENSOR_USARTx_RELEASE_RESET()        __HAL_RCC_USART1_RELEASE_RESET()
+
+#define SENSOR_USARTx_TX_PIN                 GPIO_PIN_9
+#define SENSOR_USARTx_TX_GPIO_PORT           GPIOA
+#define SENSOR_USARTx_TX_AF                  GPIO_AF7_USART1
+#define SENSOR_USARTx_RX_PIN                 GPIO_PIN_10
+#define SENSOR_USARTx_RX_GPIO_PORT           GPIOA
+#define SENSOR_USARTx_RX_AF                  GPIO_AF7_USART1
 
 
 /*

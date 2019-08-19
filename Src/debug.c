@@ -20,6 +20,7 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
 
+/* Private variables --------------------------------------------------------*/
 static UART_HandleTypeDef DebugUart;
 
 

@@ -85,7 +85,7 @@ bool HX711::is_ready()
 int32_t HX711::read()
 {
 	// Wait for the chip to become ready.
-	if(wait_ready_timeout(10) == false)
+	if(wait_ready_timeout(100) == false)
 	{
 		return -1;
 	}
