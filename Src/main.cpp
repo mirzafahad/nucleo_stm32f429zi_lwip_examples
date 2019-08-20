@@ -108,10 +108,8 @@ int main(void)
   printf("------------\r\n");
   printf("Initializing Ethernet and Sensor Interface...\r\n");
 
-  char temp[6] = "Hello";
 
   HW_Uart1_Init();
-  HW_Uart1_Send((uint8_t *)temp, 5);
 
 
   /* Configure the BSP */

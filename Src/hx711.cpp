@@ -38,15 +38,19 @@ void HX711::begin()
 {
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
+	RCC_GPIO_CLK_ENABLE((uint32_t)SCK_PORT);
 	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull  = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HW_GPIO_Init(SCK_PORT, SCK_PIN, &GPIO_InitStruct);
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Pin   = SCK_PIN;
+	HAL_GPIO_Init(SCK_PORT, &GPIO_InitStruct);
 
+	RCC_GPIO_CLK_ENABLE((uint32_t)DT_PORT);
 	GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull  = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HW_GPIO_Init(DT_PORT, DT_PIN, &GPIO_InitStruct);
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Pin   = DT_PIN;
+	HAL_GPIO_Init(DT_PORT, &GPIO_InitStruct);
 
 	set_gain(GAIN);
 }
@@ -89,6 +93,7 @@ int32_t HX711::read()
 	{
 		return -1;
 	}
+	//wait_ready();
 
 	// Define structures for reading data into.
 	int32_t buffer = 0;
