@@ -74,7 +74,7 @@ typedef enum eAppState
 	CLOSE
 }eAppState_t;
 
-eAppState_t AppState = CONNECT;
+eAppState_t AppState = SEND_DATA;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -290,9 +290,14 @@ void app_fsm(void)
 		}
 		case SEND_DATA:
 		{
-			BSP_LED_Toggle(LED1);
-			tcp_SendData(DataBuffer, sizeof(DataBuffer));
-			AppState = CONNECT;
+			uint32_t packetSize = prepare_packet();
+
+			//tcp_SendData(DataBuffer, sizeof(DataBuffer));
+
+			HW_Uart1_Send(DataBuffer, packetSize);
+
+			//AppState = CONNECT;
+
 			break;
 		}
 		default:
