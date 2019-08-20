@@ -204,20 +204,6 @@ static void Netif_Config(void)
   }
 }
 
-/**
-  * @brief EXTI line detection callbacks
-  * @param GPIO_Pin: Specifies the pins connected EXTI line
-  * @retval None
-  */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  
-  if (GPIO_Pin == GPIO_PIN_13)
-  {
-     /*connect to tcp server */ 
-     tcp_echoclient_connect();
-  }
-}
 
 /**
   * @brief  System Clock Configuration
