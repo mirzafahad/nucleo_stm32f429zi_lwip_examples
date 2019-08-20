@@ -64,7 +64,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif;
-uint8_t DataBuffer[48];
+uint8_t DataBuffer[70];
 
 typedef enum eAppState
 {
@@ -81,6 +81,7 @@ static void SystemClock_Config(void);
 static void BSP_Config(void);
 static void Netif_Config(void);
 void app_fsm(void);
+uint32_t prepare_packet(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -281,7 +282,6 @@ void app_fsm(void)
 	{
 		case CONNECT:
 		{
-			Shelf_GetAllData(DataBuffer, sizeof(DataBuffer));
 			if(tcp_GetConnectionStatus() == false)
 			{
 				tcp_echoclient_connect();
@@ -316,6 +316,35 @@ void app_fsm(void)
 		}
 
 	}
+}
+
+uint32_t prepare_packet(void)
+{
+	uint32_t bufIndex = 0;
+	uint8_t McuUniqueID[8];
+
+	McuUniqueID[0] = *((uint8_t *) 0x1fff7a10);
+	McuUniqueID[1] = *((uint8_t *) 0x1fff7a11);
+	McuUniqueID[2] = *((uint8_t *) 0x1fff7a12);
+	McuUniqueID[3] = *((uint8_t *) 0x1fff7a13);
+	McuUniqueID[4] = *((uint8_t *) 0x1fff7a18);
+	McuUniqueID[5] = *((uint8_t *) 0x1fff7a19);
+	McuUniqueID[6] = *((uint8_t *) 0x1fff7a1a);
+	McuUniqueID[7] = *((uint8_t *) 0x1fff7a1b);
+
+	for(uint8_t i = 1; i <= 8; i++)
+	{
+		DataBuffer[bufIndex++] = i;
+	}
+
+	for(uint8_t i = 0; i < sizeof(McuUniqueID); i++)
+	{
+		DataBuffer[bufIndex++] = McuUniqueID[i];
+	}
+
+	Shelf_GetAllData(&DataBuffer[bufIndex], (sizeof(DataBuffer) - bufIndex));
+
+	return (bufIndex + 48);
 }
 
 #ifdef  USE_FULL_ASSERT
