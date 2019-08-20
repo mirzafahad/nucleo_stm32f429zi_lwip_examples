@@ -44,7 +44,7 @@ void Shelf_GetAllData(uint8_t *buf, size_t bufSize)
 
 	for(uint8_t i = 0; i < NUM_OF_ZONES; i++)
 	{
-		data = (uint32_t)Zones[i].read_average(10);
+		data = (uint32_t)Zones[i].read();
 
 		buf[bufIndex++] = (data >> 24) & 0xFF;
 		buf[bufIndex++] = (data >> 16) & 0xFF;
@@ -60,7 +60,7 @@ int32_t Shelf_GetZoneData(uint8_t zoneNum)
 		return -1;
 	}
 
-	return Zones[zoneNum - 1].read_average(10);
+	return Zones[zoneNum - 1].read();
 }
 
 
