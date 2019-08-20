@@ -47,7 +47,7 @@ void HX711::begin()
 
 	RCC_GPIO_CLK_ENABLE((uint32_t)DT_PORT);
 	GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull  = GPIO_PULLUP;
+	GPIO_InitStruct.Pull  = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Pin   = DT_PIN;
 	HAL_GPIO_Init(DT_PORT, &GPIO_InitStruct);
