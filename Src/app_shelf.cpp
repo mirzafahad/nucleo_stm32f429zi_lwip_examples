@@ -46,10 +46,10 @@ void Shelf_GetAllData(uint8_t *buf, size_t bufSize)
 	{
 		data = (uint32_t)Zones[i].read();
 
-		buf[bufIndex++] = (data >> 24) & 0xFF;
-		buf[bufIndex++] = (data >> 16) & 0xFF;
-		buf[bufIndex++] = (data >> 8) & 0xFF;
 		buf[bufIndex++] = data & 0xFF;
+		buf[bufIndex++] = (data >> 8) & 0xFF;
+		buf[bufIndex++] = (data >> 16) & 0xFF;
+		buf[bufIndex++] = (data >> 24) & 0xFF;
 	}
 }
 
