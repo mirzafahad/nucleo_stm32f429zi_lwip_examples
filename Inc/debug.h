@@ -15,6 +15,7 @@ extern "C" {
  * @retval None
  */
 void DBG_Init(void);
+void HW_Uart3_Send(uint8_t *pData, size_t size);
 
 
 #ifdef __cplusplus

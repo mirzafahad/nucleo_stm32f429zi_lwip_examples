@@ -75,3 +75,11 @@ void DBG_Error_Handler( void )
     printf("Error_Handler\n\r");
     while(1);
 }
+
+void HW_Uart3_Send(uint8_t *pData, size_t size)
+{
+	if(HAL_UART_Transmit(&DebugUart, pData, size, 5000) != HAL_OK)
+	{
+		printf("UART3 Tx failed!\r\n");
+	}
+}

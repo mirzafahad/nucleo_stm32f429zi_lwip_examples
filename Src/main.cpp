@@ -294,7 +294,9 @@ void app_fsm(void)
 
 			//tcp_SendData(DataBuffer, sizeof(DataBuffer));
 
-			HW_Uart1_Send(DataBuffer, packetSize);
+			//HW_Uart1_Send(DataBuffer, packetSize);
+		    //printf("%08X\r\n", (unsigned int)Shelf_GetZoneData(1));
+			HW_Uart3_Send(DataBuffer, packetSize);
 
 			//AppState = CONNECT;
 
