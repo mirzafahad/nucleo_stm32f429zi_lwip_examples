@@ -55,8 +55,6 @@
 #include "app_ethernet.h"
 #include "tcp_echoclient.h"
 #include "debug.h"
-#include "app_shelf.h"
-#include "hw_uart1.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,24 +62,11 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif;
-uint8_t DataBuffer[70];
-
-typedef enum eAppState
-{
-	CONNECT,
-	CONNECTED,
-	SEND_DATA,
-	CLOSE
-}eAppState_t;
-
-eAppState_t AppState = SEND_DATA;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void BSP_Config(void);
 static void Netif_Config(void);
-void app_fsm(void);
-uint32_t prepare_packet(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -107,10 +92,7 @@ int main(void)
 
   printf("#Debug Port#\r\n");
   printf("------------\r\n");
-  printf("Initializing Ethernet and Sensor Interface...\r\n");
-
-
-  HW_Uart1_Init();
+  printf("Initializing Ethernet Interface...\r\n");
 
 
   /* Configure the BSP */
@@ -125,20 +107,18 @@ int main(void)
   /* Notify user about the network interface config */
   User_notification(&gnetif);
 
-  Shelf_Init();
   printf("Done!\r\n");
 
 
   /* Infinite loop */
   while (1)
-  {
-	  app_fsm();
-	  /* Read a received packet from the Ethernet buffers and send it
-         to the lwIP for handling */
-	  //ethernetif_input(&gnetif);
-	  /* Handle timeouts */
-	  //sys_check_timeouts();
+  {  
+    /* Read a received packet from the Ethernet buffers and send it 
+       to the lwIP for handling */
+    ethernetif_input(&gnetif);
 
+    /* Handle timeouts */
+    sys_check_timeouts();
 
 #ifdef USE_DHCP
     /* handle periodic timers for LwIP */
@@ -155,14 +135,14 @@ int main(void)
 static void BSP_Config(void)
 {
   /* Configure LED1, LED2 */
-  //BSP_LED_Init(LED1);
-  //BSP_LED_Init(LED2);
+  BSP_LED_Init(LED1);
+  BSP_LED_Init(LED2);
   
   /* Set Systick Interrupt to the highest priority */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0x0, 0x0);
 
   /* Configure User Button */
-  //BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 }
 
 /**
@@ -204,6 +184,20 @@ static void Netif_Config(void)
   }
 }
 
+/**
+  * @brief EXTI line detection callbacks
+  * @param GPIO_Pin: Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  
+  if (GPIO_Pin == GPIO_PIN_13)
+  {
+     /*connect to tcp server */ 
+     tcp_echoclient_connect();
+  }
+}
 
 /**
   * @brief  System Clock Configuration
@@ -240,7 +234,7 @@ static void SystemClock_Config(void)
 
   /* Enable HSE Oscillator and activate PLL with HSE as source */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 8;
@@ -260,84 +254,6 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
-}
-
-void app_fsm(void)
-{
-	switch(AppState)
-	{
-		case CONNECT:
-		{
-			if(tcp_GetConnectionStatus() == false)
-			{
-				tcp_echoclient_connect();
-				AppState = CONNECTED;
-			}
-			else
-			{
-				AppState = SEND_DATA;
-			}
-
-			break;
-		}
-		case CONNECTED:
-		{
-			if(tcp_GetConnectionStatus() == true)
-			{
-				AppState = SEND_DATA;
-			}
-			break;
-		}
-		case SEND_DATA:
-		{
-			uint32_t packetSize = prepare_packet();
-
-			//tcp_SendData(DataBuffer, sizeof(DataBuffer));
-
-			//HW_Uart1_Send(DataBuffer, packetSize);
-		    //printf("%08X\r\n", (unsigned int)Shelf_GetZoneData(1));
-			HW_Uart3_Send(DataBuffer, packetSize);
-
-			//AppState = CONNECT;
-
-			break;
-		}
-		default:
-		{
-			AppState = CONNECT;
-			break;
-		}
-
-	}
-}
-
-uint32_t prepare_packet(void)
-{
-	uint32_t bufIndex = 0;
-	uint8_t McuUniqueID[8];
-
-	McuUniqueID[0] = *((uint8_t *) 0x1fff7a10);
-	McuUniqueID[1] = *((uint8_t *) 0x1fff7a11);
-	McuUniqueID[2] = *((uint8_t *) 0x1fff7a12);
-	McuUniqueID[3] = *((uint8_t *) 0x1fff7a13);
-	McuUniqueID[4] = *((uint8_t *) 0x1fff7a18);
-	McuUniqueID[5] = *((uint8_t *) 0x1fff7a19);
-	McuUniqueID[6] = *((uint8_t *) 0x1fff7a1a);
-	McuUniqueID[7] = *((uint8_t *) 0x1fff7a1b);
-
-	for(uint8_t i = 1; i <= 8; i++)
-	{
-		DataBuffer[bufIndex++] = i;
-	}
-
-	for(uint8_t i = 0; i < sizeof(McuUniqueID); i++)
-	{
-		DataBuffer[bufIndex++] = McuUniqueID[i];
-	}
-
-	Shelf_GetAllData(&DataBuffer[bufIndex], (sizeof(DataBuffer) - bufIndex));
-
-	return (bufIndex + 48);
 }
 
 #ifdef  USE_FULL_ASSERT

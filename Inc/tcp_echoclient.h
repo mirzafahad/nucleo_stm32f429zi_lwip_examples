@@ -46,22 +46,12 @@
 #ifndef __TCP_ECHOCLIENT_H__
 #define __TCP_ECHOCLIENT_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void tcp_echoclient_connect(void);
-bool tcp_GetConnectionStatus(void);
-int8_t tcp_SendData(uint8_t *buf, size_t bufSize);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __TCP_ECHOCLIENT_H__ */
 
