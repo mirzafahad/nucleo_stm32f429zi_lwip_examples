@@ -94,6 +94,7 @@ int32_t HX711::read()
 		return -1;
 	}
 	//wait_ready();
+	HAL_GPIO_WritePin(SCK_PORT, SCK_PIN, GPIO_PIN_RESET);
 
 	// Define structures for reading data into.
 	int32_t buffer = 0;
@@ -122,6 +123,7 @@ int32_t HX711::read()
 		HAL_GPIO_WritePin(SCK_PORT, SCK_PIN, GPIO_PIN_SET);
 
 		buffer = buffer << 1 ;
+
 
 		if (HAL_GPIO_ReadPin(DT_PORT, DT_PIN))
 		{
