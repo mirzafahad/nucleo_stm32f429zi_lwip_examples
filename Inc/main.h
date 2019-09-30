@@ -59,12 +59,12 @@
 //#define USE_LCD        /* enable LCD  */  
 //#define USE_DHCP       /* enable DHCP, if disabled static address is used */
 
-#define DEST_IP_ADDR0   (uint8_t) 169
-#define DEST_IP_ADDR1   (uint8_t) 254
-#define DEST_IP_ADDR2   (uint8_t) 210
-#define DEST_IP_ADDR3   (uint8_t) 195
+#define DEST_IP_ADDR0   (uint8_t) 192
+#define DEST_IP_ADDR1   (uint8_t) 168
+#define DEST_IP_ADDR2   (uint8_t) 0
+#define DEST_IP_ADDR3   (uint8_t) 11
 
-#define DEST_PORT       (uint16_t) 8888
+#define DEST_PORT       (uint16_t) 7
  
 /*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
 #define IP_ADDR0   (uint8_t) 192
